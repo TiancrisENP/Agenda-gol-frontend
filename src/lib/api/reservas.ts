@@ -79,7 +79,7 @@ export const reservasApi = {
         return data;
       }
       
-      // If it has nested data.data, try that
+
       if (data?.data) {
         return Array.isArray(data.data) ? data.data : [];
       }

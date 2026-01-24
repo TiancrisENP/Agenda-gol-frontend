@@ -1,70 +1,416 @@
-# Getting Started with Create React App
+# AgendaGol - Sistema de Reservas de Canchas de Fútbol
 
-This project was bootstrapped with [Create React App](https://github.com/facebook/create-react-app).
+Aplicación web Frontend desarrollada con Next.js 14 y TypeScript para la gestión de reservas de canchas de fútbol.
 
-## Available Scripts
+## 🚀 Características Principales
 
-In the project directory, you can run:
+- ✅ Autenticación de usuarios con JWT
+- ✅ Gestión de canchas deportivas
+- ✅ Sistema de reservas con múltiples estados
+- ✅ Dashboard con estadísticas
+- ✅ Diseño responsive y moderno
+- ✅ Manejo robusto de errores
+- ✅ Protección de rutas por rol
+- ✅ Validación de formularios
+- ✅ Estados de carga optimizados
 
-### `npm start`
+## 📋 Requisitos Previos
 
-Runs the app in the development mode.\
-Open [http://localhost:3000](http://localhost:3000) to view it in your browser.
+- Node.js 18.x o superior
+- npm, yarn o pnpm
+- Backend de AgendaGol ejecutándose (ver repositorio: https://github.com/javiermercado1/agendaGol)
 
-The page will reload when you make changes.\
-You may also see any lint errors in the console.
+## 🛠️ Instalación
 
-### `npm test`
+### 1. Clonar el repositorio
 
-Launches the test runner in the interactive watch mode.\
-See the section about [running tests](https://facebook.github.io/create-react-app/docs/running-tests) for more information.
+```bash
+git clone <tu-repositorio>
+cd agenda-gol-frontend
+```
 
-### `npm run build`
+### 2. Instalar dependencias
 
-Builds the app for production to the `build` folder.\
-It correctly bundles React in production mode and optimizes the build for the best performance.
+```bash
+npm install
+# o
+yarn install
+# o
+pnpm install
+```
 
-The build is minified and the filenames include the hashes.\
-Your app is ready to be deployed!
+### 3. Configurar variables de entorno
 
-See the section about [deployment](https://facebook.github.io/create-react-app/docs/deployment) for more information.
+Crea un archivo `.env.local` en la raíz del proyecto:
 
-### `npm run eject`
+```env
+# API Configuration
+NEXT_PUBLIC_API_URL=http://localhost:8080/api
+NEXT_PUBLIC_API_TIMEOUT=30000
 
-**Note: this is a one-way operation. Once you `eject`, you can't go back!**
+# Application
+NEXT_PUBLIC_APP_NAME=AgendaGol
+NEXT_PUBLIC_APP_URL=http://localhost:3000
 
-If you aren't satisfied with the build tool and configuration choices, you can `eject` at any time. This command will remove the single build dependency from your project.
+# Environment
+NODE_ENV=development
+```
 
-Instead, it will copy all the configuration files and the transitive dependencies (webpack, Babel, ESLint, etc) right into your project so you have full control over them. All of the commands except `eject` will still work, but they will point to the copied scripts so you can tweak them. At this point you're on your own.
+### 4. Ejecutar en modo desarrollo
 
-You don't have to ever use `eject`. The curated feature set is suitable for small and middle deployments, and you shouldn't feel obligated to use this feature. However we understand that this tool wouldn't be useful if you couldn't customize it when you are ready for it.
+```bash
+npm run dev
+# o
+yarn dev
+# o
+pnpm dev
+```
 
-## Learn More
+La aplicación estará disponible en `http://localhost:3000`
 
-You can learn more in the [Create React App documentation](https://facebook.github.io/create-react-app/docs/getting-started).
+### 5. Compilar para producción
 
-To learn React, check out the [React documentation](https://reactjs.org/).
+```bash
+npm run build
+npm run start
+# o
+yarn build
+yarn start
+```
 
-### Code Splitting
+## 📁 Estructura del Proyecto
 
-This section has moved here: [https://facebook.github.io/create-react-app/docs/code-splitting](https://facebook.github.io/create-react-app/docs/code-splitting)
+```
+agenda-gol-frontend/
+├── src/
+│   ├── app/                      # App Router de Next.js
+│   │   ├── (auth)/              # Rutas de autenticación
+│   │   │   └── login/           # Página de login
+│   │   ├── (dashboard)/         # Rutas protegidas
+│   │   │   ├── layout.tsx       # Layout del dashboard
+│   │   │   ├── dashboard/       # Dashboard principal
+│   │   │   ├── canchas/         # Gestión de canchas
+│   │   │   └── reservas/        # Gestión de reservas
+│   │   └── globals.css          # Estilos globales
+│   │
+│   ├── components/              # Componentes reutilizables
+│   │   ├── ui/                  # Componentes UI base
+│   │   │   ├── Button.tsx
+│   │   │   ├── Card.tsx
+│   │   │   └── Input.tsx
+│   │   ├── auth/                # Componentes de autenticación
+│   │   │   └── ProtectedRoute.tsx
+│   │   ├── canchas/             # Componentes de canchas
+│   │   │   └── CanchaCard.tsx
+│   │   └── reservas/            # Componentes de reservas
+│   │       └── ReservaCard.tsx
+│   │
+│   ├── lib/                     # Librerías y utilidades
+│   │   └── api/                 # Servicios de API
+│   │       ├── client.ts        # Cliente HTTP configurado
+│   │       ├── auth.ts          # API de autenticación
+│   │       ├── canchas.ts       # API de canchas
+│   │       └── reservas.ts      # API de reservas
+│   │
+│   ├── store/                   # Estado global (Zustand)
+│   │   └── authStore.ts         # Store de autenticación
+│   │
+│   ├── types/                   # Definiciones TypeScript
+│   │   ├── auth.types.ts
+│   │   ├── cancha.types.ts
+│   │   └── reserva.types.ts
+│   │
+│   └── middleware.ts            # Middleware de Next.js
+│
+├── public/                      # Archivos estáticos
+├── .env.local                   # Variables de entorno
+├── next.config.js              # Configuración de Next.js
+├── tailwind.config.ts          # Configuración de Tailwind
+├── tsconfig.json               # Configuración de TypeScript
+└── package.json                # Dependencias del proyecto
+```
 
-### Analyzing the Bundle Size
+## 🏗️ Arquitectura y Decisiones Técnicas
 
-This section has moved here: [https://facebook.github.io/create-react-app/docs/analyzing-the-bundle-size](https://facebook.github.io/create-react-app/docs/analyzing-the-bundle-size)
+### Framework y Tecnologías
 
-### Making a Progressive Web App
+- **Next.js 14**: Elegido por su App Router, renderizado del lado del servidor, y optimizaciones automáticas
+- **TypeScript**: Para type safety y mejor experiencia de desarrollo
+- **Tailwind CSS**: Para estilos rápidos y consistentes
+- **Zustand**: State management ligero y simple
+- **Axios**: Cliente HTTP con interceptors para manejo de tokens y errores
 
-This section has moved here: [https://facebook.github.io/create-react-app/docs/making-a-progressive-web-app](https://facebook.github.io/create-react-app/docs/making-a-progressive-web-app)
+### Patrones Implementados
 
-### Advanced Configuration
+#### 1. Separación de Responsabilidades
 
-This section has moved here: [https://facebook.github.io/create-react-app/docs/advanced-configuration](https://facebook.github.io/create-react-app/docs/advanced-configuration)
+```
+- Componentes UI puros en /components/ui
+- Lógica de negocio en /lib/api
+- Estado global en /store
+- Tipos compartidos en /types
+```
 
-### Deployment
+#### 2. Manejo de Errores en Capas
 
-This section has moved here: [https://facebook.github.io/create-react-app/docs/deployment](https://facebook.github.io/create-react-app/docs/deployment)
+```typescript
+// Capa 1: Interceptor de Axios (client.ts)
+- Maneja errores HTTP globalmente
+- Convierte errores a ApiError personalizado
+- Redirige en caso de 401
 
-### `npm run build` fails to minify
+// Capa 2: API Services
+- Captura y loguea errores
+- Re-lanza para manejo en componentes
 
-This section has moved here: [https://facebook.github.io/create-react-app/docs/troubleshooting#npm-run-build-fails-to-minify](https://facebook.github.io/create-react-app/docs/troubleshooting#npm-run-build-fails-to-minify)
+// Capa 3: Componentes
+- Muestra errores al usuario
+- Proporciona opciones de recuperación
+```
+
+#### 3. Estado de Autenticación
+
+```typescript
+// Zustand Store
+- Maneja login/logout
+- Persiste en localStorage
+- Sincroniza con interceptors de Axios
+- Proporciona estado de carga
+```
+
+#### 4. Protección de Rutas
+
+```typescript
+// Middleware de Next.js
+- Verifica token en cookies
+- Redirige rutas protegidas
+- Evita acceso a /login si ya autenticado
+
+// ProtectedRoute Component
+- Verifica autenticación en cliente
+- Valida roles de usuario
+- Muestra estados de carga
+```
+
+### Componentes Reutilizables
+
+Todos los componentes UI siguen estos principios:
+
+- **Props tipadas** con TypeScript
+- **Variantes** para diferentes estilos
+- **Estados** (loading, error, disabled)
+- **Accesibilidad** con ARIA labels
+- **Responsive** por defecto
+
+### Manejo de API
+
+Cada servicio de API (`auth.ts`, `canchas.ts`, `reservas.ts`) sigue este patrón:
+
+```typescript
+export const serviceApi = {
+  // GET - Obtener recursos
+  getAll: async (filters?) => { ... },
+  getById: async (id) => { ... },
+  
+  // POST - Crear recursos
+  create: async (data) => { ... },
+  
+  // PUT/PATCH - Actualizar recursos
+  update: async (id, data) => { ... },
+  
+  // DELETE - Eliminar recursos
+  delete: async (id) => { ... },
+};
+```
+
+### Validación de Formularios
+
+```typescript
+// Validación en cliente
+- Validación en tiempo real
+- Mensajes de error específicos
+- Prevención de envíos inválidos
+- Limpieza de errores al escribir
+```
+
+## 🔒 Seguridad
+
+### Autenticación y Autorización
+
+- JWT almacenado en localStorage
+- Token enviado en header Authorization
+- Middleware protege rutas en servidor
+- ProtectedRoute verifica en cliente
+- Logout limpia todo el estado
+
+### Protección XSS
+
+- React escapa contenido automáticamente
+- No uso de dangerouslySetInnerHTML
+- Validación de inputs
+
+### Variables de Entorno
+
+- Variables sensibles en .env.local
+- Prefijo NEXT_PUBLIC_ para cliente
+- No se commitean archivos .env
+
+## 🎨 UI/UX
+
+### Diseño Responsive
+
+```
+- Mobile-first approach
+- Breakpoints: sm (640px), md (768px), lg (1024px)
+- Sidebar colapsable en móvil
+- Grid adaptativo en listados
+```
+
+### Estados de Carga
+
+Cada página implementa:
+- Skeleton loaders
+- Spinners en botones
+- Mensajes de progreso
+- Indicadores visuales
+
+### Feedback al Usuario
+
+- Mensajes de error claros
+- Confirmaciones de acciones
+- Toast notifications (opcional)
+- Validación en tiempo real
+
+## 📝 Flujos Principales
+
+### Flujo de Autenticación
+
+1. Usuario ingresa a /login
+2. Completa formulario con validación
+3. Sistema valida credenciales
+4. Backend retorna JWT y usuario
+5. Token se guarda en localStorage
+6. Usuario redirigido a /dashboard
+
+### Flujo de Reserva
+
+1. Usuario explora /canchas
+2. Filtra canchas disponibles
+3. Selecciona cancha deseada
+4. Completa formulario de reserva
+5. Sistema valida disponibilidad
+6. Reserva creada y confirmada
+7. Redirección a /reservas
+
+### Flujo de Cancelación
+
+1. Usuario ve reservas en /reservas
+2. Selecciona reserva a cancelar
+3. Confirma acción
+4. Sistema actualiza estado
+5. UI refleja cambio inmediato
+
+## 🧪 Testing (Pendiente)
+
+Recomendaciones para implementar:
+
+```bash
+# Unit Tests
+- Jest para lógica de negocio
+- React Testing Library para componentes
+
+# Integration Tests
+- Testing de flujos completos
+- Mock de APIs
+
+# E2E Tests
+- Playwright o Cypress
+- Pruebas de usuario completas
+```
+
+## 🚀 Deployment
+
+### Vercel (Recomendado)
+
+```bash
+# Instalar Vercel CLI
+npm i -g vercel
+
+# Deploy
+vercel
+
+# Production
+vercel --prod
+```
+
+### Otras Plataformas
+
+- **Netlify**: Configurar build command y env vars
+- **AWS Amplify**: Conectar repositorio
+- **DigitalOcean App Platform**: Deploy con Dockerfile
+
+### Variables de Entorno en Producción
+
+Asegúrate de configurar:
+- `NEXT_PUBLIC_API_URL`: URL del backend
+- `NODE_ENV=production`
+
+## 📊 Optimizaciones Implementadas
+
+- **Code Splitting**: Automático por Next.js
+- **Image Optimization**: Next/Image component
+- **Font Optimization**: Next/Font
+- **Lazy Loading**: Componentes pesados
+- **Memoization**: React.memo donde aplica
+
+## 🐛 Troubleshooting
+
+### Error: "Network Error"
+
+- Verifica que el backend esté corriendo
+- Confirma la URL en .env.local
+- Revisa CORS en el backend
+
+### Error: "Token expirado"
+
+- El usuario será redirigido automáticamente
+- Limpiar localStorage manualmente si persiste
+
+### Estilos no cargan
+
+```bash
+# Regenerar Tailwind
+npm run dev
+
+# Limpiar cache
+rm -rf .next
+```
+
+## 📚 Recursos Adicionales
+
+- [Documentación Next.js](https://nextjs.org/docs)
+- [Tailwind CSS](https://tailwindcss.com/docs)
+- [Zustand](https://github.com/pmndrs/zustand)
+- [Axios](https://axios-http.com/docs/intro)
+
+## 🤝 Contribución
+
+Este es un proyecto de prueba técnica. Para contribuir:
+
+1. Fork el proyecto
+2. Crea una rama feature
+3. Commit cambios
+4. Push a la rama
+5. Abre un Pull Request
+
+## 📄 Licencia
+
+Este proyecto es de código abierto para fines educativos.
+
+## ✉️ Contacto
+
+Para preguntas sobre este proyecto, contacta al desarrollador.
+
+---
+
+**Desarrollado con ❤️ para la prueba técnica de Naowee**
