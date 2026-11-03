@@ -332,15 +332,43 @@ Recomendaciones para implementar:
 
 ### Vercel (Recomendado)
 
+El proyecto usa Next.js 15.5.29. Hay que desplegar esta versión o una posterior de la misma línea: Vercel rechaza builds de Next.js 14.1.0 y otras versiones con vulnerabilidades conocidas.
+
+El repositorio nació como Create React App, así que el proyecto de Vercel puede seguir con el preset **Create React App** y la carpeta de salida `build`. Ese ajuste publica la plantilla vieja y no esta app. `vercel.json` fuerza Next.js y anula esa carpeta de salida. En el dashboard, el Output Directory tiene que quedar vacío.
+
+| Ajuste | Valor |
+| --- | --- |
+| Framework Preset | Next.js |
+| Build Command | `npm run build` |
+| Output Directory | (vacío; lo gestiona Next.js) |
+| Install Command | `npm install` |
+| Node.js | 20.x o superior |
+
+Las variables `NEXT_PUBLIC_*` se incrustan en el build. Si las cambias en Vercel, hay que volver a desplegar para que el sitio las use.
+
+#### Desde el dashboard
+
+1. Sube el repositorio a GitHub, GitLab o Bitbucket, incluyendo `package-lock.json`.
+2. En [vercel.com/new](https://vercel.com/new), importa ese repositorio.
+3. Confirma el Framework Preset **Next.js** y los comandos de la tabla.
+4. En **Environment Variables**, añade las variables de la sección siguiente para Production (y Preview, si quieres).
+5. Pulsa **Deploy**. El sitio queda en una URL `*.vercel.app`.
+
+Cada push a la rama de producción vuelve a desplegar. El resto de ramas generan un preview.
+
+#### Desde la CLI
+
 ```bash
-# Instalar Vercel CLI
 npm i -g vercel
+vercel login
+vercel          # preview
+vercel --prod   # producción
+```
 
-# Deploy
-vercel
+La CLI pregunta el directorio del proyecto y enlaza el repo local con el proyecto de Vercel. Las variables de entorno también se pueden cargar con:
 
-# Production
-vercel --prod
+```bash
+vercel env add NEXT_PUBLIC_API_URL production
 ```
 
 ### Otras Plataformas
@@ -351,9 +379,29 @@ vercel --prod
 
 ### Variables de Entorno en Producción
 
-Asegúrate de configurar:
-- `NEXT_PUBLIC_API_URL`: URL del backend
-- `NODE_ENV=production`
+En local, el frontend apunta a `localhost`. En Vercel esas URLs no sirven: usa las URLs públicas del backend y permite el dominio de Vercel en el CORS del API.
+
+| Variable | Uso |
+| --- | --- |
+| `NEXT_PUBLIC_API_URL` | Auth (`/auth/login`, `/auth/register`, `/auth/verify`) |
+| `NEXT_PUBLIC_FIELDS_API_URL` | Canchas (`/fields`) |
+| `NEXT_PUBLIC_RESERVATIONS_API_URL` | Reservas (`/reservations`) |
+| `NEXT_PUBLIC_API_TIMEOUT` | Timeout de Axios en milisegundos. Por defecto `30000` |
+| `NEXT_PUBLIC_APP_NAME` | Nombre de la app |
+| `NEXT_PUBLIC_APP_URL` | URL pública del frontend en Vercel |
+
+Ejemplo:
+
+```env
+NEXT_PUBLIC_API_URL=https://api.tudominio.com
+NEXT_PUBLIC_FIELDS_API_URL=https://api.tudominio.com
+NEXT_PUBLIC_RESERVATIONS_API_URL=https://api.tudominio.com
+NEXT_PUBLIC_API_TIMEOUT=30000
+NEXT_PUBLIC_APP_NAME=AgendaGol
+NEXT_PUBLIC_APP_URL=https://agenda-gol.vercel.app
+```
+
+No hace falta definir `NODE_ENV`: Vercel lo pone en `production` durante el build.
 
 ## 📊 Optimizaciones Implementadas
 
