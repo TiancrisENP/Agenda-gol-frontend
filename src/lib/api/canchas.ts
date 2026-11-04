@@ -73,7 +73,7 @@ export const canchasApi = {
       // These will be filtered client-side after fetching
 
       const queryString = params.toString();
-      const url = queryString ? `/fields?${queryString}` : '/fields';
+      const url = queryString ? `/fields/?${queryString}` : '/fields/';
       
       const response = await fieldsClient.get(url);
       const data = response.data;
@@ -146,7 +146,24 @@ export const canchasApi = {
   getDisponibilidad: async (id: string, fecha: string): Promise<DisponibilidadSlot[]> => {
     try {
       const response = await fieldsClient.get(`/fields/${id}/availability?date=${fecha}`);
-      return (response.data?.data ?? response.data) as DisponibilidadSlot[];
+      const data = response.data?.data ?? response.data;
+
+      if (data && typeof data === 'object' && Array.isArray(data.available_hours)) {
+        return data.available_hours.map((hour: string) => {
+          const start = hour.substring(0, 5);
+          const startHour = Number(start.split(':')[0]);
+          const end = `${String(startHour + 1).padStart(2, '0')}:00`;
+          return {
+            fecha,
+            horaInicio: start,
+            horaFin: end,
+            disponible: true,
+            canchaId: id,
+          };
+        });
+      }
+
+      return Array.isArray(data) ? data : [];
     } catch (error) {
       console.error('Get disponibilidad error:', error);
       throw error;
@@ -160,8 +177,19 @@ export const canchasApi = {
    */
   create: async (data: Partial<Cancha>): Promise<Cancha> => {
     try {
-      const response = await fieldsClient.post('/fields', data);
-      return (response.data?.data ?? response.data) as Cancha;
+      const payload = {
+        name: data.nombre,
+        location: data.ubicacion,
+        capacity: data.capacidad,
+        price_per_hour: data.precioPorHora,
+        description: data.descripcion,
+        opening_time: data.horarioApertura ? `${data.horarioApertura}:00` : '10:00:00',
+        closing_time: data.horarioCierre ? `${data.horarioCierre}:00` : '22:00:00',
+        is_active: data.disponible ?? true,
+      };
+      const response = await fieldsClient.post('/fields/', payload);
+      const created = response.data?.data ?? response.data;
+      return transformBackendField(created as BackendFieldResponse);
     } catch (error) {
       console.error('Create cancha error:', error);
       throw error;
@@ -176,8 +204,19 @@ export const canchasApi = {
    */
   update: async (id: string, data: Partial<Cancha>): Promise<Cancha> => {
     try {
-      const response = await fieldsClient.put(`/fields/${id}`, data);
-      return (response.data?.data ?? response.data) as Cancha;
+      const payload: Record<string, unknown> = {};
+      if (data.nombre !== undefined) payload.name = data.nombre;
+      if (data.ubicacion !== undefined) payload.location = data.ubicacion;
+      if (data.capacidad !== undefined) payload.capacity = data.capacidad;
+      if (data.precioPorHora !== undefined) payload.price_per_hour = data.precioPorHora;
+      if (data.descripcion !== undefined) payload.description = data.descripcion;
+      if (data.horarioApertura !== undefined) payload.opening_time = `${data.horarioApertura}:00`;
+      if (data.horarioCierre !== undefined) payload.closing_time = `${data.horarioCierre}:00`;
+      if (data.disponible !== undefined) payload.is_active = data.disponible;
+
+      const response = await fieldsClient.patch(`/fields/${id}`, payload);
+      const updated = response.data?.data ?? response.data;
+      return transformBackendField(updated as BackendFieldResponse);
     } catch (error) {
       console.error('Update cancha error:', error);
       throw error;

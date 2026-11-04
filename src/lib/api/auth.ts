@@ -8,7 +8,8 @@ interface BackendTokenResponse {
 }
 
 interface BackendUserResponse {
-  id: number;
+  id?: number;
+  user_id?: number;
   username: string;
   email: string;
   is_active: boolean;
@@ -25,7 +26,7 @@ function transformBackendUser(backendUser: BackendUserResponse): User {
   const apellido = nameParts.slice(1).join(' ') || '';
 
   return {
-    id: String(backendUser.id),
+    id: String(backendUser.id ?? backendUser.user_id),
     email: backendUser.email,
     nombre,
     apellido,

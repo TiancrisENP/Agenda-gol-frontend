@@ -20,6 +20,31 @@ export interface ApiResponse<T = any> {
   success: boolean;
 }
 
+function extractDetail(data: any): string | undefined {
+  if (!data) return undefined;
+
+  const detail = data.detail;
+  if (typeof detail === 'string' && detail.trim()) return detail;
+
+  if (Array.isArray(detail)) {
+    const messages = detail
+      .map((item) => {
+        if (typeof item === 'string') return item;
+        if (item && typeof item.msg === 'string') {
+          return item.msg.replace(/^Value error,\s*/i, '');
+        }
+        return null;
+      })
+      .filter((message): message is string => Boolean(message));
+
+    if (messages.length > 0) return messages.join('. ');
+  }
+
+  if (typeof data.message === 'string' && data.message.trim()) return data.message;
+  if (typeof data.error === 'string' && data.error.trim()) return data.error;
+  return undefined;
+}
+
 // Helper function to create axios instance with interceptors
 const createApiClient = (baseURL: string): AxiosInstance => {
   const client = axios.create({
@@ -63,34 +88,46 @@ const createApiClient = (baseURL: string): AxiosInstance => {
       }
 
       const { status, data } = error.response;
-      const message = data?.message || data?.error || 'Ha ocurrido un error';
+      const detail = extractDetail(data);
+      const message = detail || 'Ha ocurrido un error';
       const code = data?.code || `HTTP_${status}`;
 
       // Handle specific status codes
       switch (status) {
-        case 401:
-          // Unauthorized - Clear token and redirect to login
-          if (typeof window !== 'undefined') {
+        case 401: {
+          const hadToken = typeof window !== 'undefined' && !!localStorage.getItem('token');
+          if (hadToken && typeof window !== 'undefined') {
             localStorage.removeItem('token');
             localStorage.removeItem('user');
-            window.location.href = '/login';
+            document.cookie = 'token=; path=/; max-age=0';
+            if (!window.location.pathname.startsWith('/login')) {
+              window.location.href = '/login';
+            }
           }
-          throw new ApiError(status, 'Sesión expirada. Por favor, inicia sesión nuevamente.', code);
+          throw new ApiError(
+            status,
+            detail || (hadToken
+              ? 'Sesión expirada. Por favor, inicia sesión nuevamente.'
+              : 'Credenciales inválidas.'),
+            code,
+            data
+          );
+        }
 
         case 403:
-          throw new ApiError(status, 'No tienes permisos para realizar esta acción.', code);
+          throw new ApiError(status, detail || 'No tienes permisos para realizar esta acción.', code, data);
 
         case 404:
-          throw new ApiError(status, 'Recurso no encontrado.', code, data);
+          throw new ApiError(status, detail || 'Recurso no encontrado.', code, data);
 
         case 422:
-          throw new ApiError(status, 'Datos inválidos. Verifica la información.', code, data);
+          throw new ApiError(status, detail || 'Datos inválidos. Verifica la información.', code, data);
 
         case 429:
           throw new ApiError(status, 'Demasiadas solicitudes. Intenta nuevamente más tarde.', code);
 
         case 500:
-          throw new ApiError(status, 'Error del servidor. Intenta nuevamente más tarde.', code);
+          throw new ApiError(status, detail || 'Error del servidor. Intenta nuevamente más tarde.', code, data);
 
         default:
           throw new ApiError(status, message, code, data);

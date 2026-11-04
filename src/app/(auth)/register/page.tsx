@@ -3,6 +3,7 @@
 import React, { useState, FormEvent } from 'react';
 import { useRouter } from "next/navigation";
 import { useAuthStore } from '@/store/authStore';
+import { ApiError } from '@/lib/api/client';
 import { Input } from '@/components/ui/Input';
 import { Button } from '@/components/ui/Button';
 import { Mail, Lock, User, Phone, AlertCircle, ArrowLeft } from 'lucide-react';
@@ -65,8 +66,10 @@ export default function RegisterPage() {
       // Redirect to reservas page on success
       router.push('/reservas');
     } catch (err) {
-      // Error is handled by the store
-      setFormError(error || 'Error al registrar usuario. Por favor, intenta nuevamente.');
+      const message = err instanceof ApiError
+        ? err.message
+        : 'Error al registrar usuario. Por favor, intenta nuevamente.';
+      setFormError(message);
     }
   };
 
