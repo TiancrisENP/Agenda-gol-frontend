@@ -1,0 +1,19 @@
+services:
+  - type: web
+    name: agendagol-web
+    runtime: node
+    plan: free
+    region: oregon
+    buildCommand: npm ci && npm run build
+    startCommand: npx next start --hostname 0.0.0.0 --port $PORT
+    envVars:
+      - key: NODE_VERSION
+        value: "20"
+      - key: NEXT_PUBLIC_API_URL
+        value: https://agendagol-auth.onrender.com
+      - key: NEXT_PUBLIC_FIELDS_API_URL
+        value: https://agendagol-fields.onrender.com
+      - key: NEXT_PUBLIC_RESERVATIONS_API_URL
+        value: https://agendagol-reservations.onrender.com
+      - key: NEXT_PUBLIC_APP_URL
+        value: https://agendagol-web.onrender.com
