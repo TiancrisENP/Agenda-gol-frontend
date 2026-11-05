@@ -20,13 +20,30 @@ export interface ApiResponse<T = any> {
   success: boolean;
 }
 
+function isHtmlErrorPage(value: string): boolean {
+  const trimmed = value.trim();
+  return trimmed.startsWith('<') || /<!doctype/i.test(trimmed);
+}
+
 function readableDetail(value: string): string | undefined {
   const trimmed = value.trim();
   if (!trimmed) return undefined;
-  if (trimmed.startsWith('<') || /<!doctype/i.test(trimmed)) {
+  if (isHtmlErrorPage(trimmed)) {
     return 'El servicio respondió con una página de error. Suele pasar cuando Render está despertando. Pulsa Reintentar.';
   }
   return trimmed;
+}
+
+function isTransientFailure(error: AxiosError<any>): boolean {
+  if (!error.response) return true;
+  if (error.response.status === 502 || error.response.status === 503 || error.response.status === 504) {
+    return true;
+  }
+  return typeof error.response.data === 'string' && isHtmlErrorPage(error.response.data);
+}
+
+function wait(ms: number): Promise<void> {
+  return new Promise((resolve) => setTimeout(resolve, ms));
 }
 
 function extractDetail(data: any): string | undefined {
@@ -87,7 +104,17 @@ const createApiClient = (baseURL: string): AxiosInstance => {
     (response) => {
       return response;
     },
-    (error: AxiosError<any>) => {
+    async (error: AxiosError<any>) => {
+      const config = error.config as (AxiosRequestConfig & { __retryCount?: number }) | undefined;
+      const retries = config?.__retryCount ?? 0;
+      // Render free instances answer with an HTML page while they wake up.
+      // Wait and try the same request again before showing that page to the user.
+      if (config && isTransientFailure(error) && retries < 2) {
+        config.__retryCount = retries + 1;
+        await wait(retries === 0 ? 5000 : 12000);
+        return client.request(config);
+      }
+
       // Network error
       if (!error.response) {
         const service = error.config?.baseURL || 'el servicio';
