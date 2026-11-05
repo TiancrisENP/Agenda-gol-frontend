@@ -132,16 +132,38 @@ export default function LoginPage() {
         </div>
       </section>
 
-      <section className="flex items-center justify-center bg-[#f3f6f4] px-4 py-10 sm:px-8">
-        <div className="w-full max-w-md">
-          <div className="mb-8">
-            <h2 className="text-3xl font-bold text-gray-900">Entra al vestuario</h2>
-            <p className="mt-2 text-sm text-gray-600">
-              Con tu cuenta ves las canchas libres y los turnos de tu equipo.
+      <section className="relative flex items-center justify-center overflow-hidden bg-[#0e3b2e] px-4 py-10 sm:px-8 lg:bg-[#0c3328]">
+        <div
+          className="pointer-events-none absolute inset-0 opacity-50 lg:opacity-80"
+          style={{
+            backgroundImage:
+              'repeating-linear-gradient(90deg, rgba(255,255,255,0.035) 0 84px, transparent 84px 168px)',
+          }}
+        />
+        <div className="pointer-events-none absolute inset-y-8 right-8 hidden w-24 border-y border-l border-white/15 lg:block" />
+
+        <div className="relative w-full max-w-md overflow-hidden rounded-2xl border border-white/15 bg-[#f4f7f5] shadow-2xl">
+          <div className="border-b border-emerald-900/10 bg-white px-8 pb-6 pt-8">
+            <p className="text-[11px] font-semibold uppercase tracking-[0.28em] text-emerald-800">
+              Planilla de ingreso
             </p>
+            <h2 className="mt-2 text-3xl font-bold text-gray-900">Iniciar sesión</h2>
+            <p className="mt-2 text-sm leading-relaxed text-gray-600">
+              Entras con el usuario del equipo. Adentro ves qué cancha de fútbol 5, 7 u 11 sigue libre y qué turno ya quedó confirmado.
+            </p>
+            <div className="mt-4 flex flex-wrap gap-2">
+              {['Fútbol 5', 'Fútbol 7', 'Fútbol 11', '1 o 2 horas', '10:00–22:00'].map((item) => (
+                <span
+                  key={item}
+                  className="rounded-full border border-emerald-900/10 bg-emerald-50 px-2.5 py-1 text-xs font-medium text-emerald-900"
+                >
+                  {item}
+                </span>
+              ))}
+            </div>
           </div>
 
-          <div className="rounded-2xl border border-gray-200 bg-white p-8 shadow-lg">
+          <div className="px-8 py-7">
             {(formError || error) && (
               <div className="mb-6 flex items-start gap-3 rounded-lg border border-red-200 bg-red-50 px-4 py-3 text-red-700">
                 <AlertCircle className="mt-0.5 h-5 w-5 flex-shrink-0" />
@@ -152,8 +174,8 @@ export default function LoginPage() {
             <form onSubmit={handleSubmit} className="space-y-6">
               <Input
                 type="email"
-                label="Correo Electrónico"
-                placeholder="tu@email.com"
+                label="Correo del jugador"
+                placeholder="capitan@equipo.com"
                 value={email}
                 onChange={(e) => setEmail(e.target.value)}
                 icon={<Mail className="h-5 w-5" />}
@@ -181,13 +203,17 @@ export default function LoginPage() {
                 isLoading={isLoading}
                 disabled={isLoading}
               >
-                Iniciar Sesión
+                Iniciar sesión
               </Button>
             </form>
 
-            <div className="mt-6 text-center">
+            <p className="mt-4 text-center text-xs leading-relaxed text-gray-500">
+              El precio del turno sale por hora. Si cancelas, ese horario de la cancha vuelve a quedar libre.
+            </p>
+
+            <div className="mt-5 text-center">
               <p className="text-sm text-gray-600">
-                ¿No tienes una cuenta?{' '}
+                ¿El equipo todavía no tiene cuenta?{' '}
                 <Link href="/register" className="font-medium text-blue-600 hover:text-blue-700">
                   Regístrate aquí
                 </Link>
