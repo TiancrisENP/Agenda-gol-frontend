@@ -49,7 +49,7 @@ function extractDetail(data: any): string | undefined {
 const createApiClient = (baseURL: string): AxiosInstance => {
   const client = axios.create({
     baseURL,
-    timeout: parseInt(process.env.NEXT_PUBLIC_API_TIMEOUT || '30000'),
+    timeout: parseInt(process.env.NEXT_PUBLIC_API_TIMEOUT || '60000'),
     headers: {
       'Content-Type': 'application/json',
     },
@@ -81,10 +81,13 @@ const createApiClient = (baseURL: string): AxiosInstance => {
       // Network error
       if (!error.response) {
         const service = error.config?.baseURL || 'el servicio';
+        const timedOut = error.code === 'ECONNABORTED';
         throw new ApiError(
           0,
-          `No hay conexión con ${service}. Comprueba que ese microservicio esté en marcha.`,
-          'NETWORK_ERROR'
+          timedOut
+            ? `El servicio en ${service} tardó demasiado. En Render a veces está dormido: espera un momento y reintenta.`
+            : `No hay conexión con ${service}. Comprueba que ese microservicio esté en marcha.`,
+          timedOut ? 'TIMEOUT' : 'NETWORK_ERROR'
         );
       }
 
@@ -139,21 +142,14 @@ const createApiClient = (baseURL: string): AxiosInstance => {
   return client;
 };
 
-// Create axios instances for each microservice
-// Auth Service (Puerto 8000)
-const apiClient: AxiosInstance = createApiClient(
-  process.env.NEXT_PUBLIC_API_URL || 'http://localhost:8000'
-);
+// Deployed microservices. Override with NEXT_PUBLIC_* when running the Python services locally.
+const AUTH_API_URL = process.env.NEXT_PUBLIC_API_URL || 'https://agendagol-auth.onrender.com';
+const FIELDS_API_URL = process.env.NEXT_PUBLIC_FIELDS_API_URL || 'https://agendagol-fields.onrender.com';
+const RESERVATIONS_API_URL = process.env.NEXT_PUBLIC_RESERVATIONS_API_URL || 'https://agendagol-reservations.onrender.com';
 
-// Fields Service (Puerto 8002)
-export const fieldsClient: AxiosInstance = createApiClient(
-  process.env.NEXT_PUBLIC_FIELDS_API_URL || 'http://localhost:8002'
-);
-
-// Reservations Service (Puerto 8003)
-export const reservationsClient: AxiosInstance = createApiClient(
-  process.env.NEXT_PUBLIC_RESERVATIONS_API_URL || 'http://localhost:8003'
-);
+const apiClient: AxiosInstance = createApiClient(AUTH_API_URL);
+export const fieldsClient: AxiosInstance = createApiClient(FIELDS_API_URL);
+export const reservationsClient: AxiosInstance = createApiClient(RESERVATIONS_API_URL);
 
 
 // Generic API methods
