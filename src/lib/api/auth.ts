@@ -1,4 +1,4 @@
-import { api } from './client';
+import { api, ApiError } from './client';
 import { LoginCredentials, AuthResponse, User, RegisterData, UserRole } from '@/types/auth.types';
 
 // Backend response types
@@ -145,7 +145,29 @@ export const authApi = {
       const response = await api.get<BackendUserResponse>('/auth/me');
       return transformBackendUser(response);
     } catch (error) {
+      if (error instanceof ApiError && error.status === 404) {
+        const response = await api.get<BackendUserResponse>('/auth/verify');
+        return transformBackendUser(response);
+      }
       console.error('Get profile error:', error);
+      throw error;
+    }
+  },
+
+  /**
+   * Update the signed-in user's username or password.
+   * Backend: PATCH /auth/profile
+   */
+  updateProfile: async (data: { username?: string; password?: string }): Promise<User> => {
+    try {
+      const response = await api.patch<BackendUserResponse>('/auth/profile', data);
+      const user = transformBackendUser(response);
+      if (typeof window !== 'undefined') {
+        localStorage.setItem('user', JSON.stringify(user));
+      }
+      return user;
+    } catch (error) {
+      console.error('Update profile error:', error);
       throw error;
     }
   },

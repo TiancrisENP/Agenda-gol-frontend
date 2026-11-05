@@ -80,9 +80,10 @@ const createApiClient = (baseURL: string): AxiosInstance => {
     (error: AxiosError<any>) => {
       // Network error
       if (!error.response) {
+        const service = error.config?.baseURL || 'el servicio';
         throw new ApiError(
           0,
-          'Error de conexión. Verifica tu conexión a internet.',
+          `No hay conexión con ${service}. Comprueba que ese microservicio esté en marcha.`,
           'NETWORK_ERROR'
         );
       }
