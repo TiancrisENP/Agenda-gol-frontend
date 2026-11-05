@@ -44,9 +44,11 @@ pnpm install
 Crea un archivo `.env.local` en la raíz del proyecto:
 
 ```env
-# API Configuration
-NEXT_PUBLIC_API_URL=http://localhost:8080/api
-NEXT_PUBLIC_API_TIMEOUT=30000
+# Microservicios publicados
+NEXT_PUBLIC_API_URL=https://agendagol-auth.onrender.com
+NEXT_PUBLIC_FIELDS_API_URL=https://agendagol-fields.onrender.com
+NEXT_PUBLIC_RESERVATIONS_API_URL=https://agendagol-reservations.onrender.com
+NEXT_PUBLIC_API_TIMEOUT=60000
 
 # Application
 NEXT_PUBLIC_APP_NAME=AgendaGol
@@ -379,26 +381,26 @@ vercel env add NEXT_PUBLIC_API_URL production
 
 ### Variables de Entorno en Producción
 
-En local, el frontend apunta a `localhost`. En Vercel esas URLs no sirven: usa las URLs públicas del backend y permite el dominio de Vercel en el CORS del API.
+Cada variable es la raíz de un microservicio distinto, sin `/api` al final. El frontend agrega `/auth`, `/fields` y `/reservations`.
 
-| Variable | Uso |
-| --- | --- |
-| `NEXT_PUBLIC_API_URL` | Auth (`/auth/login`, `/auth/register`, `/auth/verify`) |
-| `NEXT_PUBLIC_FIELDS_API_URL` | Canchas (`/fields`) |
-| `NEXT_PUBLIC_RESERVATIONS_API_URL` | Reservas (`/reservations`) |
-| `NEXT_PUBLIC_API_TIMEOUT` | Timeout de Axios en milisegundos. Por defecto `30000` |
-| `NEXT_PUBLIC_APP_NAME` | Nombre de la app |
-| `NEXT_PUBLIC_APP_URL` | URL pública del frontend en Vercel |
+| Variable | Valor | Uso |
+| --- | --- | --- |
+| `NEXT_PUBLIC_API_URL` | `https://agendagol-auth.onrender.com` | Auth (`/auth/login`, `/auth/register`, `/auth/verify`, `/auth/me`) |
+| `NEXT_PUBLIC_FIELDS_API_URL` | `https://agendagol-fields.onrender.com` | Canchas (`/fields`) |
+| `NEXT_PUBLIC_RESERVATIONS_API_URL` | `https://agendagol-reservations.onrender.com` | Reservas (`/reservations`, `/reservations/my`) |
+| `NEXT_PUBLIC_API_TIMEOUT` | `60000` | Timeout de Axios en milisegundos |
+| `NEXT_PUBLIC_APP_NAME` | `AgendaGol` | Nombre de la app |
+| `NEXT_PUBLIC_APP_URL` | `https://agenda-gol-frontend.vercel.app` | URL pública del frontend |
 
-Ejemplo:
+Ejemplo para Vercel:
 
 ```env
-NEXT_PUBLIC_API_URL=https://api.tudominio.com
-NEXT_PUBLIC_FIELDS_API_URL=https://api.tudominio.com
-NEXT_PUBLIC_RESERVATIONS_API_URL=https://api.tudominio.com
-NEXT_PUBLIC_API_TIMEOUT=30000
+NEXT_PUBLIC_API_URL=https://agendagol-auth.onrender.com
+NEXT_PUBLIC_FIELDS_API_URL=https://agendagol-fields.onrender.com
+NEXT_PUBLIC_RESERVATIONS_API_URL=https://agendagol-reservations.onrender.com
+NEXT_PUBLIC_API_TIMEOUT=60000
 NEXT_PUBLIC_APP_NAME=AgendaGol
-NEXT_PUBLIC_APP_URL=https://agenda-gol.vercel.app
+NEXT_PUBLIC_APP_URL=https://agenda-gol-frontend.vercel.app
 ```
 
 No hace falta definir `NODE_ENV`: Vercel lo pone en `production` durante el build.

@@ -24,10 +24,21 @@ export default function ReservasPage() {
     setIsLoading(true);
     setError(null);
 
+    const filters = estadoFilter !== 'TODAS' ? { estado: estadoFilter } : undefined;
+
+    const load = () => reservasApi.getMisReservas(filters);
+    const canRetry = (err: unknown) =>
+      err instanceof ApiError &&
+      (err.status === 0 || err.status === 502 || err.status === 503 || err.message.includes('Reintentar'));
+
     try {
-      const filters = estadoFilter !== 'TODAS' ? { estado: estadoFilter } : undefined;
-      const data = await reservasApi.getMisReservas(filters);
-      setReservas(data);
+      try {
+        setReservas(await load());
+      } catch (err) {
+        if (!canRetry(err)) throw err;
+        await new Promise((resolve) => setTimeout(resolve, 2000));
+        setReservas(await load());
+      }
     } catch (err) {
       const errorMessage =
         err instanceof ApiError

@@ -20,11 +20,21 @@ export interface ApiResponse<T = any> {
   success: boolean;
 }
 
+function readableDetail(value: string): string | undefined {
+  const trimmed = value.trim();
+  if (!trimmed) return undefined;
+  if (trimmed.startsWith('<') || /<!doctype/i.test(trimmed)) {
+    return 'El servicio respondió con una página de error. Suele pasar cuando Render está despertando. Pulsa Reintentar.';
+  }
+  return trimmed;
+}
+
 function extractDetail(data: any): string | undefined {
   if (!data) return undefined;
+  if (typeof data === 'string') return readableDetail(data);
 
   const detail = data.detail;
-  if (typeof detail === 'string' && detail.trim()) return detail;
+  if (typeof detail === 'string' && detail.trim()) return readableDetail(detail);
 
   if (Array.isArray(detail)) {
     const messages = detail
